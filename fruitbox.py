@@ -1,9 +1,3 @@
-from selenium import webdriver
-
-import cv2
-import numpy as np
-import pytesseract
-
 # 880 570 << 기본화면 dsd
 
 # 100 550 << 리셋버튼
@@ -11,7 +5,6 @@ import pytesseract
 
 # 41*41 << 사과 하나 공간
 
-example_img = cv2.imread('./example.png')
 
 array_apple = [
     [2, 9, 1, 2, 2, 8, 4, 1, 1, 4, 2, 3, 3, 4, 3, 8, 8],
