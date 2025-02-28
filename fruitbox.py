@@ -27,6 +27,40 @@ array_apple = [
 # 가능한 사각형 판단
 
 # 사각형은 1 -> 3 -> 5-> 7 순으로 늘어남 *최대 17개 
+# 최악의 경우에 숫자 하나에 수백번 연산이 들어가짐
+
+def highnum_first(array_apple, current_row, current_col):
+    rows = 10
+    cols = 17
+
+    apple_now = array_apple[current_row][current_col]
+
+    apple_hap = apple_now
+
+    plus_col = current_col + 1
+    apple_hap += array_apple[current_row][plus_col] 
+
+    if apple_now in [1,2,8,9]:
+        if apple_hap == 10:
+            array_apple[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
+            return
+
+    apple_hap = apple_now
+
+    if current_row == 9:
+        return
+    
+    plus_row = current_row + 1
+    apple_hap += array_apple[plus_row][current_col]
+    
+    if apple_now in [1,2,8,9]:
+        if apple_hap == 10:
+            for i in range(current_row, plus_row + 1):
+                array_apple[i][current_col] = 0
+            return
+
+
+
 
 def break_right(array_apple, current_row, current_col):
     rows = 10
@@ -79,6 +113,17 @@ def break_right(array_apple, current_row, current_col):
 
 
 # 실험코드
+T = 30
+while T:
+    for i in range(0,10):
+        for j in range(0,16):
+            highnum_first(array_apple, i, j)
+
+    for row in array_apple:
+        print(row)
+    print("-----------------------------------")
+    T -= 1
+
 T = 100
 while T:
     for i in range(0,10):
