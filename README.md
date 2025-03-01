@@ -85,6 +85,7 @@ def break_right(array_apple, current_row, current_col):
 [0, 0, 0, 0, 0, 0, 7, 0, 0, 5, 2, 0, 0, 5, 0, 0, 0]
 [0, 1, 8, 5, 0, 0, 0, 2, 0, 4, 7, 8, 0, 0, 0, 7, 8]
 [0, 1, 8, 4, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# 115점
 ```
 0으로 바꾼 개수 만큼이 최종 점수가 되므로 이 방법으로는 115점밖에 얻지 못한다.  
 다른 방법을 고민해보면서 고득점을 얻을 수 있는 조건을 생각해보았다.  
@@ -155,8 +156,201 @@ def highnum_first(array_apple, current_row, current_col):
 [0, 0, 0, 0, 0, 0, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 [0, 1, 8, 5, 0, 0, 0, 2, 0, 4, 7, 8, 0, 0, 0, 7, 8]
 [0, 1, 8, 4, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# 120점
 ```
 숫자 9는 1 외에는 10을 만들 수 있는 숫자가 없기 때문에 먼저 없애면 점수가 크게 높아질 줄 알았으나    
 120점으로 유의미한 변화는 없었다.  
 <br>
+### 세번째 방법
+```python
+    apple_hap = 0
+    target_row = current_row + 1
+    target_col = current_col + 1
+
+    while True:
+        if target_col >= 17:
+            break
+        if target_row >= 10:
+            break
+
+        for i in range(current_row, target_row):
+            for j in range(current_col, target_col):
+                apple_hap += array_apple[i][j]
+
+        if apple_hap == 10:
+            for i in range(current_row, target_row):
+                for j in range(current_col, target_col):
+                    array_apple[i][j] = 0
+            return
+        
+        if apple_hap > 10:
+            break
+
+        target_col += 1
+        if target_col >= 16:
+            target_row += 1
+            target_col = current_col + 1
+``` 
+더 많은 사과를 없애기 위해서 멀리 대각선 방향으로 떨어진 사과도 처리해야겠다.
+2*2 이상의 사각형도 처리해주는 코드를 짜보았다.  
+<br>  
+#### 이후 사과
+```python
+[0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8]
+[0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 9, 0, 2, 0, 0, 0, 2, 4, 0, 9, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 9, 0, 0, 0, 0, 5, 6, 0, 8, 0, 0, 0, 0, 0]
+[0, 4, 1, 0, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 7]
+[0, 0, 6, 9, 0, 7, 0, 8, 0, 0, 0, 8, 8, 0, 0, 0, 0]
+[1, 0, 0, 7, 0, 8, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0]
+[7, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 0, 0, 0, 7, 8]
+[0, 0, 8, 4, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+# 132점
+```
+멀리 있는 사각형을 처리할 수 있으니, 132점으로 전에 비해 훨씬 높은 점수를 받을 수 있었다.  
+이제 사과를 처리하는 기본적인 방법은 모두 준비가 되었다.   
+<br>  
+### 네번째 방법  
+170점을 세우기 위해서는 사과의 위치를 고려하는 것 보다 다음에 처리할 사과까지 고려해야 한다는 것을 깨달았다.  
+<br>
+예를 들어 아래와 같은 3*3 크기의 사과가 있다고 생각해보자.
+<table>
+    <tr><td>1</td><td>2</td><td>8</td></tr>
+    <tr><td>3</td><td>8</td><td>7</td></tr>
+    <tr><td>1</td><td>5</td><td>5</td></tr>
+</table>   
+
+- #### 방법 1
+<table>  
+  <tr>
+    <td>
+      <table border="1">
+        <tr><td>1</td><td><b>2</b></td><td><b>8</b></td></tr>
+        <tr><td>3</td><td>8</td><td>7</td></tr>
+        <tr><td>1</td><td>5</td><td>5</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>1</td><td> </td><td> </td></tr>
+        <tr><td>3</td><td>8</td><td>7</td></tr>
+        <tr><td>1</td><td><b>5</b></td><td><b>5</b></td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>1</td><td> </td><td> </td></tr>
+        <tr><td>3</td><td>8</td><td>7</td></tr>
+        <tr><td>1</td><td> </td><td> </td></tr>
+      </table>
+    </td>
+  </tr>
+</table>  
+가로로 놓인 숫자 2와 8을 먼저 처리하면 숫자를 4개밖에 없애지 못한다.  
+
+- #### 방법 2
+<table>  
+  <tr>
+    <td>
+      <table border="1">
+        <tr><td>1</td><td><b>2</b></td><td>8</td></tr>
+        <tr><td>3</td><td><b>8</b></td><td>7</td></tr>
+        <tr><td>1</td><td>5</td><td>5</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>1</td><td> </td><td>8</td></tr>
+        <tr><td>3</td><td> </td><td>7</td></tr>
+        <tr><td>1</td><td>5</td><td>5</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>1</td><td> </td><td>8</td></tr>
+        <tr><td><b>3</b></td><td> </td><td><b>7</b></td></tr>
+        <tr><td>1</td><td><b>5</b></td><td><b>5</b></td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td><b>1</b></td><td> </td><td><b>8</b></td></tr>
+        <tr><td> </td><td>&nbsp;&nbsp;</td><td> </td></tr>
+        <tr><td><b>1</b></td><td> </td><td> </td></tr>
+      </table>
+    </td>
+  </tr>
+</table>  
+같은 숫자 2와 8을 처리하는 순서만 바꾸었을 뿐인데 점수가 두배 가량 늘었다.    
+이와 같이 숫자를 단순히 처리하는 경우를 넘어서 다음 수까지 읽을 수 있어야 만점을 받을 수 있다는 것을 알았다.  
+<br><br>
+그렇다면 어떻게 순서를 판단해야할까?  
+<br><br>  
+아래의 예시를 보며 방법을 찾아보자.  
+<br>
+<table>
+  <tr><td>9</td><td>1</td><td>6</td><td>1</td><td>2</td></tr>
+  <tr><td>3</td><td>1</td><td>7</td><td>5</td><td>3</td></tr>
+  <tr><td>1</td><td>8</td><td>4</td><td>5</td><td>4</td></tr>
+</table>
+
+- #### 풀이
+<table>  
+  <tr>
+    <td>
+      <table border="1">
+        <tr><td>9</td><td><b>1</b></td><td>6</td><td>1</td><td>2</td></tr>
+        <tr><td>3</td><td><b>1</b></td><td>7</td><td>5</td><td>3</td></tr>
+        <tr><td>1</td><td><b>8</b></td><td>4</td><td>5</td><td>4</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>9</td><td>&nbsp;&nbsp;</td><td>6</td><td>1</td><td>2</td></tr>
+        <tr><td>3</td><td>&nbsp;&nbsp;</td><td>7</td><td><b>5</b></td><td>3</td></tr>
+        <tr><td>1</td><td>&nbsp;&nbsp;</td><td>4</td><td><b>5</b></td><td>4</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>9</td><td>&nbsp;&nbsp;</td><td>6</td><td>1</td><td>2</td></tr>
+        <tr><td><b>3</b></td><td>&nbsp;&nbsp;</td><td><b>7</b></td><td>&nbsp;&nbsp;</td><td>3</td></tr>
+        <tr><td>1</td><td>&nbsp;&nbsp;</td><td>4</td><td>&nbsp;&nbsp;</td><td>4</td></tr>
+      </table>
+    </td>
+  </tr>
+</table> 
+<table>  
+  <tr>
+    <td>
+      <table border="1">
+        <tr><td>9</td><td>&nbsp;&nbsp;</td><td>6</td><td>1</td><td>2</td></tr>
+        <tr><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>3</td></tr>
+        <tr><td>1</td><td>&nbsp;&nbsp;</td><td>4</td><td>&nbsp;&nbsp;</td><td>4</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td>9</td><td>&nbsp;&nbsp;</td><td><b>6</b></td><td>1</td><td>2</td></tr>
+        <tr><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>3</td></tr>
+        <tr><td>1</td><td>&nbsp;&nbsp;</td><td><b>4</b></td><td>&nbsp;&nbsp;</td><td>4</td></tr>
+      </table>
+    </td>
+    <td>
+      <table border="1">
+        <tr><td><b>9</b></td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>1</td><td>2</td></tr>
+        <tr><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>3</td></tr>
+        <tr><td><b>1</b></td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>4</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>   
+만약 가장 높은 숫자를 먼저 처리하려 했다면 위 상황에서 높은 점수를 얻지 못한다.  <br>
+오히려 8,1,1을 먼저 없애야 다음 단계로 넘어갈 수 있다.  <br>
+
+그래서 생각해낸 방법이 처리하기 위한 숫자가 없어졌을 때 **처리할 수 있는 다음 숫자의 수 기억하기**이다.  
+<br>
+
+
 
