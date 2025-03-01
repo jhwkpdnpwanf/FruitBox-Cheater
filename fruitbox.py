@@ -46,9 +46,6 @@ def highnum_first(array_apple, current_row, current_col):
             return
 
     apple_hap = apple_now
-
-    if current_row == 9:
-        return
     
     plus_row = current_row + 1
     apple_hap += array_apple[plus_row][current_col]
@@ -70,9 +67,9 @@ def break_right(array_apple, current_row, current_col):
 
     # 1. 오른쪽 n칸 판단
     apple_hap = apple_now
-    n = 16 - current_col
+    rc = 16 - current_col
 
-    for i in range(n):
+    for i in range(rc):
         plus_col = current_col + 1 + i
         apple_hap += array_apple[current_row][plus_col] 
 
@@ -86,8 +83,8 @@ def break_right(array_apple, current_row, current_col):
     
     # 2. 아래 n칸 판단
     apple_hap = apple_now
-    n = 9 - current_row
-    for i in range(n):
+    rr = 9 - current_row
+    for i in range(rr):
         plus_row = current_row + 1 + i
         apple_hap += array_apple[plus_row][current_col]
 
@@ -100,22 +97,68 @@ def break_right(array_apple, current_row, current_col):
 
     print("고민 끝")
 
-"""    # 3. 사각형 판단
-    apple_hap = apple_now
-    for i in range(n):
-        pass
+    # 3. 사각형 판단
+    rc = 16 - current_col
+    rr = 9 - current_row
 
-    if apple_hap == 10:
-        array_apple[current_row][current_col] = 0
-        array_apple[plus_row][current_col] = 0
-        return
-"""
+    # c = 현재위치
+    # 2*2 >> 1개 >> [c+1][c+1] 
+    # 3*3 >> 3개 >> [c+2][c+1] [c+2][c+2] [c+1][c+2]
+    # 4*4 >> 5개 >> [c+3][c+1] [c+3][c+2] [c+3][c+3] [c+2][c+3] [c+1][c+3]
+    # 5*5 >> 7개 >> [c+4][c+1] [c+4][c+2] [c+4][c+3] [c+4][c+4] [c+3][c+4] [c+2][c+4] [c+1][c+4]
 
+    apple_hap = 0
+
+    target_row = current_row + 1
+    target_col = current_col + 1
+
+    while True:
+        if target_col >= 17:
+            break
+        if target_row >= 10:
+            break
+
+        for i in range(current_row, target_row):
+            for j in range(current_col, target_col):
+                apple_hap += array_apple[i][j]
+
+        if apple_hap == 10:
+            for i in range(current_row, target_row):
+                for j in range(current_col, target_col):
+                    array_apple[i][j] = 0
+            return
+        
+        if apple_hap > 10:
+            break
+
+        target_col += 1
+        if target_col >= 16:
+            target_row += 1
+            target_col = current_col + 1
+
+# 숫자 개수
+li = [0,0,0,0,0,0,0,0,0,0] 
+for i in range(0,10):
+    for j in range(0,17):
+        li[array_apple[i][j]] += 1
+print(li)
+
+t = 0
+for i in range(0,10):
+    t += i * li[i]
+print(t)
+
+t=0
+for i in range(0,10):
+    for j in range(0,17):
+        t += array_apple[i][j]
+print(t)
 
 # 실험코드
-T = 30
+
+T = 5
 while T:
-    for i in range(0,10):
+    for i in range(0,9):
         for j in range(0,16):
             highnum_first(array_apple, i, j)
 
@@ -127,7 +170,7 @@ while T:
 T = 100
 while T:
     for i in range(0,10):
-        for j in range(0,16):
+        for j in range(0,17):
             break_right(array_apple, i, j)
 
     for row in array_apple:
@@ -138,7 +181,7 @@ while T:
 cnt = 0
 
 for i in range(0,10):
-    for j in range(0,16):
+    for j in range(0,17):
         if array_apple[i][j] == 0:
             cnt += 1
 
