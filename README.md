@@ -353,7 +353,7 @@ def highnum_first(array_apple, current_row, current_col):
 <br>
   <table border="1">
     <tr><td>9</td><td>&nbsp;&nbsp;</td><td>6</td><td>1</td><td>2</td></tr>
-    <tr><td><b>3</b></td><td>&nbsp;&nbsp;</td><td><b>7</b></td><td>&nbsp;&nbsp;</td><td>3</td></tr>
+    <tr><td>3</td><td>&nbsp;&nbsp;</td><td>7</td><td>&nbsp;&nbsp;</td><td>3</td></tr>
     <tr><td>1</td><td>&nbsp;&nbsp;</td><td>4</td><td>&nbsp;&nbsp;</td><td>4</td></tr>
   </table>
 이러한 경우에 합이 10을 만들 수 있는 방법은 3-7, 7-3, 1-2-3-4 총 세가지이다.  
