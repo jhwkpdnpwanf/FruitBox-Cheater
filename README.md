@@ -347,10 +347,12 @@ def highnum_first(array_apple, current_row, current_col):
   </tr>
 </table>   
 만약 가장 높은 숫자를 먼저 처리하려 했다면 위 상황에서 높은 점수를 얻지 못한다.  <br>
-오히려 8,1,1을 먼저 없애야 다음 단계로 넘어갈 수 있다.  <br>
+오히려 8,1,1을 먼저 없애야 다음 단계로 넘어갈 수 있다.  <br><br>
+
+
+그래서 생각해낸 방법이 처리하기 위한 숫자가 없어졌을 때 **처리할 수 있는 다음 숫자의 수 기억하기**이다.     
 <br>
-그래서 생각해낸 방법이 처리하기 위한 숫자가 없어졌을 때 **처리할 수 있는 다음 숫자의 수 기억하기**이다.  
-<br>
+
   <table border="1">
     <tr><td>9</td><td>&nbsp;&nbsp;</td><td>6</td><td>1</td><td>2</td></tr>
     <tr><td>3</td><td>&nbsp;&nbsp;</td><td>7</td><td>&nbsp;&nbsp;</td><td>3</td></tr>
