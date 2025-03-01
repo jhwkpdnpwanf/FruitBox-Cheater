@@ -368,7 +368,126 @@ def highnum_first(array_apple, current_row, current_col):
 | 1-2-3-4 | 1개  | 6-4 |
 
 3-7 방법일 때 주변에 연결 가능한 사과 수가 가장 많아지니 3-7 방법을 사용한다.  
-실제 코드에서는 주변이 아닌 전체에서 가능한 연결 수로 판단하게 만드는 것이 확실하게 처리할 수 있을 것 같다.
+실제 코드에서는 주변이 아닌 전체에서 가능한 연결 수로 판단하게 만드는 것이 확실하게 처리할 수 있을 것 같다.    
+<br>
+```python
+def break_apple_right(array_apple, current_row, current_col):
+    apple_now = array_apple[current_row][current_col]
+    apple_hap = apple_now
 
+    rc = COL - current_col - 1
+
+    for i in range(rc):
+        plus_col = current_col + 1 + i
+        apple_hap += array_apple[current_row][plus_col] 
+
+        if apple_hap == 10:
+            array_apple[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
+            return 
+
+        if apple_hap > 10:
+            return 
+
+def break_apple_under(array_apple, current_row, current_col):
+    apple_now = array_apple[current_row][current_col]
+    apple_hap = apple_now
+
+    rr = ROW - current_row - 1
+    
+    for i in range(rr):
+        plus_row = current_row + 1 + i
+        apple_hap += array_apple[plus_row][current_col]
+
+        if apple_hap == 10:
+            for i in range(current_row, plus_row + 1):
+                array_apple[i][current_col] = 0
+            return 
+        if apple_hap > 10:
+            return 
+        
+def break_apple_square(array_apple, current_row, current_col):
+    rc = COL - current_col - 1
+    rr = ROW - current_row - 1
+
+    apple_hap = 0
+
+    target_row = current_row + 1
+    target_col = current_col + 1
+
+    while True:
+        if target_col >= COL:
+            return 
+        if target_row >= ROW:
+            return 
+
+        for i in range(current_row, target_row):
+            for j in range(current_col, target_col):
+                apple_hap += array_apple[i][j]
+
+        if apple_hap == 10:
+            for i in range(current_row, target_row):
+                for j in range(current_col, target_col):
+                    array_apple[i][j] = 0
+            return 
+        
+        if apple_hap > 10:
+            return 
+
+        target_col += 1
+        if target_col >= COL - 1:
+            target_row += 1
+            target_col = current_col + 1
+
+def break_apple(array_apple, current_row, current_col):
+
+    # 1. 오른쪽 n칸 판단
+    break_apple_right(array_apple, current_row, current_col)
+    
+    # 2. 아래 n칸 판단
+    break_apple_under(array_apple, current_row, current_col)
+
+    # 3. 사각형 판단
+    break_apple_square(array_apple, current_row, current_col)
+```
+작은 배열로 테스트를 해보기 위해서 기존의 코드를 함수로 객체지향으로 바꾸어줬다.  
+그리고 ROW와 COL을 전역변수로 할당했다.  
+
+```python
+def is_array_change(first_array, second_array):
+    one = copy.deepcopy(first_array)
+    two = copy.deepcopy(second_array)
+
+    if one == two:
+        return False
+    else:
+        return True
+
+def check_break_apple(copy_array, current_row, current_col):
+    cnt = 0
+    break_apple(copy_array, current_row, current_col)
+    prev_array = copy.deepcopy(copy_array)
+
+    while is_array_change(copy_array, prev_array):
+        for i in range(0,ROW):
+            for j in range(0,COL):
+                current_row = i
+                current_col = j
+                break_apple(copy_array, i, j)
+        prev_array = copy.deepcopy(copy_array)
+
+    for i in range(0,ROW):
+        for j in range(0,COL):
+            if copy_array[i][j] == 0:
+                cnt += 1
+    
+    return cnt, copy_array
+```
+기존의 사과 배열을 copy_array에 깊은 복사를 통해 독립적으로 사용한다.  
+합이 10이 되는 경우에 0으로 변환시킨 이후에 점수를 몇 점 더 낼 수 있는지 check_break_apple을 통해 구한다.  
+실제 배열은 변하지 않고 오직 개수를 세아리기 위한 함수이다.   
+<br>
+is_array_change함수는 기존의 copy_array와 0으로 변환된 copy_array가 
+<br>
+```python
 
 
