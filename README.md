@@ -371,86 +371,84 @@ def highnum_first(array_apple, current_row, current_col):
 실제 코드에서는 주변이 아닌 전체에서 가능한 연결 수로 판단하게 만드는 것이 확실하게 처리할 수 있을 것 같다.    
 <br>
 ```python
-def break_apple_right(array_apple, current_row, current_col):
-    apple_now = array_apple[current_row][current_col]
-    apple_hap = apple_now
+def break_apple_right(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
 
     rc = COL - current_col - 1
 
     for i in range(rc):
         plus_col = current_col + 1 + i
-        apple_hap += array_apple[current_row][plus_col] 
+        hap_apple += apple_array[current_row][plus_col] 
 
-        if apple_hap == 10:
-            array_apple[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
-            return 
+        if hap_apple == 10:
+            apple_array[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
+            return 1
 
-        if apple_hap > 10:
-            return 
+        if hap_apple > 10:
+            return 0
+    return 0
 
-def break_apple_under(array_apple, current_row, current_col):
-    apple_now = array_apple[current_row][current_col]
-    apple_hap = apple_now
+def break_apple_under(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
 
     rr = ROW - current_row - 1
     
     for i in range(rr):
         plus_row = current_row + 1 + i
-        apple_hap += array_apple[plus_row][current_col]
+        hap_apple += apple_array[plus_row][current_col]
 
-        if apple_hap == 10:
+        if hap_apple == 10:
             for i in range(current_row, plus_row + 1):
-                array_apple[i][current_col] = 0
-            return 
-        if apple_hap > 10:
-            return 
+                apple_array[i][current_col] = 0
+            return 1
+        if hap_apple > 10:
+            return 0
+    return 0
         
-def break_apple_square(array_apple, current_row, current_col):
-    rc = COL - current_col - 1
-    rr = ROW - current_row - 1
-
-    apple_hap = 0
+def break_apple_square(apple_array, current_row, current_col):
+    hap_apple = 0
 
     target_row = current_row + 1
     target_col = current_col + 1
 
     while True:
-        if target_col >= COL:
-            return 
-        if target_row >= ROW:
-            return 
+        hap_apple = 0
+        if target_row > ROW:
+            return 0
 
         for i in range(current_row, target_row):
             for j in range(current_col, target_col):
-                apple_hap += array_apple[i][j]
+                hap_apple += apple_array[i][j]
 
-        if apple_hap == 10:
+        if hap_apple == 10:
             for i in range(current_row, target_row):
                 for j in range(current_col, target_col):
-                    array_apple[i][j] = 0
-            return 
+                    apple_array[i][j] = 0
+            return 1
         
-        if apple_hap > 10:
-            return 
+        if hap_apple > 10:
+            return 0
 
         target_col += 1
-        if target_col >= COL - 1:
+        if target_col > COL:
             target_row += 1
             target_col = current_col + 1
-
-def break_apple(array_apple, current_row, current_col):
+    
+def break_apple(apple_array, current_row, current_col):
 
     # 1. 오른쪽 n칸 판단
-    break_apple_right(array_apple, current_row, current_col)
+    break_apple_right(apple_array, current_row, current_col)
     
     # 2. 아래 n칸 판단
-    break_apple_under(array_apple, current_row, current_col)
+    break_apple_under(apple_array, current_row, current_col)
 
     # 3. 사각형 판단
-    break_apple_square(array_apple, current_row, current_col)
+    break_apple_square(apple_array, current_row, current_col)
 ```
 작은 배열로 테스트를 해보기 위해서 기존의 코드를 함수로 객체지향으로 바꾸어줬다.  
-그리고 ROW와 COL을 전역변수로 할당했다.  
+ROW와 COL을 전역변수로 할당하고 가독성을 높이기 위해 일부 변수명도 바꾸어줬다.  
 
 ```python
 def is_array_change(first_array, second_array):
@@ -461,33 +459,129 @@ def is_array_change(first_array, second_array):
         return False
     else:
         return True
+```
+배열의 변화를 감지하는 반복문을 만들어주고  
+<br>
+```python
+def check_break_apple(copy_array):
+    prev_copy_array = copy.deepcopy(apple_array)
 
-def check_break_apple(copy_array, current_row, current_col):
+    while is_array_change(copy_array, prev_copy_array):
+        prev_copy_array = copy.deepcopy(copy_array)
+        for i in range(ROW):
+            for j in range(COL):
+                break_apple_right(copy_array, i, j) 
+
+                break_apple_under(copy_array, i, j)
+
+                break_apple_square(copy_array, i, j)
+
     cnt = 0
-    break_apple(copy_array, current_row, current_col)
-    prev_array = copy.deepcopy(copy_array)
-
-    while is_array_change(copy_array, prev_array):
-        for i in range(0,ROW):
-            for j in range(0,COL):
-                current_row = i
-                current_col = j
-                break_apple(copy_array, i, j)
-        prev_array = copy.deepcopy(copy_array)
-
     for i in range(0,ROW):
         for j in range(0,COL):
             if copy_array[i][j] == 0:
                 cnt += 1
-    
-    return cnt, copy_array
+
+    return cnt
 ```
-기존의 사과 배열을 copy_array에 깊은 복사를 통해 독립적으로 사용한다.  
-합이 10이 되는 경우에 0으로 변환시킨 이후에 점수를 몇 점 더 낼 수 있는지 check_break_apple을 통해 구한다.  
-실제 배열은 변하지 않고 오직 개수를 세아리기 위한 함수이다.   
-<br>
-is_array_change함수는 기존의 copy_array와 0으로 변환된 copy_array가 
+0으로 바꿀 수 있는 경우가 몇 가지 남았는지 체크하는 코드를 짜주고  
 <br>
 ```python
+def is_break_apple_where(where, current_row, current_col, max_cnt):
+    copy_array = copy.deepcopy(apple_array)
+    now_cnt = None
+
+    match where:
+        case 1:
+            if break_apple_right(copy_array, current_row, current_col):
+                now_cnt= check_break_apple(copy_array)
+        case 2:
+            if break_apple_under(copy_array, current_row, current_col):
+                now_cnt = check_break_apple(copy_array)
+        case 3:
+            if break_apple_square(copy_array, current_row, current_col):
+                now_cnt = check_break_apple(copy_array)
+    
+    if now_cnt is None:
+        return False, max_cnt  
+
+    if now_cnt > max_cnt:
+        max_cnt = now_cnt
+        return True, max_cnt
+    
+    else:
+        return False, max_cnt
+
+
+def simulate_break(apple_array):
+    current_row, current_col = 0, 0   
+    target_row, target_col = 0, 0 
+
+    while True:
+        max_cnt = 0
+        how_break = 0
+        for i in range(1, 4):
+            change_target, max_cnt = is_break_apple_where(i, current_row, current_col, max_cnt)
+
+            if change_target:
+                target_row, target_col = current_row, current_col
+                how_break = i
+        
+        
+        if how_break == 1:
+            break_apple_right(apple_array, target_row, target_col)
+            for row in apple_array:
+                print(row)
+            print("-----------------------------------")
+        elif how_break == 2:
+            break_apple_under(apple_array, target_row, target_col)
+            for row in apple_array:
+                print(row)
+            print("-----------------------------------")
+        elif how_break == 3:
+            break_apple_square(apple_array, target_row, target_col)
+            for row in apple_array:
+                print(row)
+            print("-----------------------------------")
+        else:
+            pass
+
+
+        if current_col < COL - 1:
+            current_col += 1
+        elif current_col == COL - 1 and current_row < ROW - 1:
+            current_col = 0
+            current_row += 1
+        else:
+            is_finish = copy.deepcopy(apple_array)
+            for i in range(ROW):    
+                for j in range(COL):
+                    break_apple(is_finish, i, j)
+            if not is_array_change(apple_array, is_finish):
+                print("finish")
+                break
+            else:
+                current_row, current_col = 0, 0   
+                target_row, target_col = 0, 0 
+
+```
+이렇게 코드를 짜보았다.  
+먼저 시작점 (0,0)에서 오른쪽, 왼쪽, 사각형 중 합을 10으로 만들수 있는 경우의 수를 구한다.  
+10으로 만들 수 있는 한 상황에서 0으로 변화 후, 내가 0으로 바꿀 수 개수를 구한다.  
+그렇게 각각의 경우에서 최종 결과가 가장 나을 때 해당 공간을 0으로 바꾼다.   
+<br>
+```python
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 7, 2, 0, 3, 0, 0, 0, 9, 0, 5, 4, 7, 0, 0, 0, 0]
+[0, 9, 0, 0, 0, 0, 0, 0, 4, 0, 9, 0, 0, 0, 0, 7, 0]
+[0, 0, 0, 9, 0, 0, 0, 0, 5, 6, 3, 8, 9, 0, 0, 0, 0]
+[0, 4, 1, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7]
+[0, 9, 6, 9, 0, 7, 9, 0, 0, 0, 8, 8, 8, 0, 0, 0, 0]
+[0, 2, 6, 7, 0, 8, 0, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 7, 0, 0, 5, 2, 0, 0, 0, 0, 0, 0]
+[0, 1, 8, 5, 0, 0, 0, 0, 0, 4, 7, 8, 0, 0, 0, 7, 8]
+[0, 1, 8, 4, 0, 1, 2, 9, 9, 0, 0, 0, 0, 0, 2, 1, 1]
+# 113점
+```
 
 
