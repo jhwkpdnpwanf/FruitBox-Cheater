@@ -1,12 +1,14 @@
+import copy
 # 880 570 << 기본화면 dsd
 
 # 100 550 << 리셋버튼
 # 250 320 << 시작버튼
 
 # 41*41 << 사과 하나 공간
+ROW = 10
+COL = 17
 
-
-array_apple = [
+apple_array = [
     [2, 9, 1, 2, 2, 8, 4, 1, 1, 4, 2, 3, 3, 4, 3, 8, 8],
     [7, 7, 2, 8, 3, 4, 9, 1, 9, 3, 5, 4, 7, 2, 4, 2, 3],
     [7, 9, 4, 2, 5, 6, 1, 2, 4, 7, 9, 5, 1, 4, 3, 7, 6],
@@ -29,77 +31,75 @@ array_apple = [
 # 사각형은 1 -> 3 -> 5-> 7 순으로 늘어남 *최대 17개 
 # 최악의 경우에 숫자 하나에 수백번 연산이 들어가짐
 
-def highnum_first(array_apple, current_row, current_col):
-    rows = 10
-    cols = 17
+def is_array_change(first_array, second_array):
+    one = copy.deepcopy(first_array)
+    two = copy.deepcopy(second_array)
 
-    apple_now = array_apple[current_row][current_col]
+    if one == two:
+        return False
+    else:
+        return True 
 
-    apple_hap = apple_now
+def highnum_first(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
 
     plus_col = current_col + 1
-    apple_hap += array_apple[current_row][plus_col] 
+    hap_apple += apple_array[current_row][plus_col] 
 
-    if apple_now in [1,2,8,9]:
-        if apple_hap == 10:
-            array_apple[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
+    if now_apple in [1,2,8,9]:
+        if hap_apple == 10:
+            apple_array[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
             return
 
-    apple_hap = apple_now
+    hap_apple = now_apple
     
     plus_row = current_row + 1
-    apple_hap += array_apple[plus_row][current_col]
+    hap_apple += apple_array[plus_row][current_col]
     
-    if apple_now in [1,2,8,9]:
-        if apple_hap == 10:
+    if now_apple in [1,2,8,9]:
+        if hap_apple == 10:
             for i in range(current_row, plus_row + 1):
-                array_apple[i][current_col] = 0
+                apple_array[i][current_col] = 0
             return
 
+def break_apple_right(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
 
-
-
-def break_right(array_apple, current_row, current_col):
-    rows = 10
-    cols = 17
-
-    apple_now = array_apple[current_row][current_col]
-
-    # 1. 오른쪽 n칸 판단
-    apple_hap = apple_now
-    rc = 16 - current_col
+    rc = COL - current_col - 1
 
     for i in range(rc):
         plus_col = current_col + 1 + i
-        apple_hap += array_apple[current_row][plus_col] 
+        hap_apple += apple_array[current_row][plus_col] 
 
-        if apple_hap == 10:
-            array_apple[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
-            return
+        if hap_apple == 10:
+            apple_array[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
+            return 1
 
-        if apple_hap > 10:
-            break
+        if hap_apple > 10:
+            return 0
+    return 0
 
+def break_apple_under(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
+
+    rr = ROW - current_row - 1
     
-    # 2. 아래 n칸 판단
-    apple_hap = apple_now
-    rr = 9 - current_row
     for i in range(rr):
         plus_row = current_row + 1 + i
-        apple_hap += array_apple[plus_row][current_col]
+        hap_apple += apple_array[plus_row][current_col]
 
-        if apple_hap == 10:
+        if hap_apple == 10:
             for i in range(current_row, plus_row + 1):
-                array_apple[i][current_col] = 0
-            return
-        if apple_hap > 10:
-            break
-
-    print("고민 끝")
-
-    # 3. 사각형 판단
-    rc = 16 - current_col
-    rr = 9 - current_row
+                apple_array[i][current_col] = 0
+            return 1
+        if hap_apple > 10:
+            return 0
+    return 0
+        
+def break_apple_square(apple_array, current_row, current_col):
 
     # c = 현재위치
     # 2*2 >> 1개 >> [c+1][c+1] 
@@ -107,82 +107,171 @@ def break_right(array_apple, current_row, current_col):
     # 4*4 >> 5개 >> [c+3][c+1] [c+3][c+2] [c+3][c+3] [c+2][c+3] [c+1][c+3]
     # 5*5 >> 7개 >> [c+4][c+1] [c+4][c+2] [c+4][c+3] [c+4][c+4] [c+3][c+4] [c+2][c+4] [c+1][c+4]
 
-    apple_hap = 0
+    hap_apple = 0
 
     target_row = current_row + 1
     target_col = current_col + 1
 
     while True:
-        if target_col >= 17:
-            break
-        if target_row >= 10:
-            break
+        hap_apple = 0
+        if target_row > ROW:
+            return 0
 
         for i in range(current_row, target_row):
             for j in range(current_col, target_col):
-                apple_hap += array_apple[i][j]
+                hap_apple += apple_array[i][j]
 
-        if apple_hap == 10:
+        if hap_apple == 10:
             for i in range(current_row, target_row):
                 for j in range(current_col, target_col):
-                    array_apple[i][j] = 0
-            return
+                    apple_array[i][j] = 0
+            return 1
         
-        if apple_hap > 10:
-            break
+        if hap_apple > 10:
+            return 0
 
         target_col += 1
-        if target_col >= 16:
+        if target_col > COL:
             target_row += 1
             target_col = current_col + 1
+    
+def break_apple(apple_array, current_row, current_col):
 
-# 숫자 개수
-li = [0,0,0,0,0,0,0,0,0,0] 
-for i in range(0,10):
-    for j in range(0,17):
-        li[array_apple[i][j]] += 1
-print(li)
+    # 1. 오른쪽 n칸 판단
+    break_apple_right(apple_array, current_row, current_col)
+    
+    # 2. 아래 n칸 판단
+    break_apple_under(apple_array, current_row, current_col)
 
-t = 0
-for i in range(0,10):
-    t += i * li[i]
-print(t)
+    # 3. 사각형 판단
+    break_apple_square(apple_array, current_row, current_col)
 
-t=0
-for i in range(0,10):
-    for j in range(0,17):
-        t += array_apple[i][j]
-print(t)
 
+
+def check_break_apple(copy_array):
+    prev_copy_array = copy.deepcopy(apple_array)
+
+    while is_array_change(copy_array, prev_copy_array):
+        prev_copy_array = copy.deepcopy(copy_array)
+        for i in range(ROW):
+            for j in range(COL):
+                break_apple_right(copy_array, i, j) 
+
+                break_apple_under(copy_array, i, j)
+
+                break_apple_square(copy_array, i, j)
+
+    cnt = 0
+    for i in range(0,ROW):
+        for j in range(0,COL):
+            if copy_array[i][j] == 0:
+                cnt += 1
+
+    return cnt
+
+def is_break_apple_where(where, current_row, current_col, max_cnt):
+    copy_array = copy.deepcopy(apple_array)
+    now_cnt = None
+
+    match where:
+        case 1:
+            if break_apple_right(copy_array, current_row, current_col):
+                now_cnt= check_break_apple(copy_array)
+        case 2:
+            if break_apple_under(copy_array, current_row, current_col):
+                now_cnt = check_break_apple(copy_array)
+        case 3:
+            if break_apple_square(copy_array, current_row, current_col):
+                now_cnt = check_break_apple(copy_array)
+    
+    if now_cnt is None:
+        return False, max_cnt  
+
+    if now_cnt > max_cnt:
+        max_cnt = now_cnt
+        return True, max_cnt
+    
+    else:
+        return False, max_cnt
+
+
+def simulate_break(apple_array):
+    current_row, current_col = 0, 0   
+    target_row, target_col = 0, 0 
+
+    while True:
+        max_cnt = 0
+        how_break = 0
+        for i in range(1, 4):
+            change_target, max_cnt = is_break_apple_where(i, current_row, current_col, max_cnt)
+
+            if change_target:
+                target_row, target_col = current_row, current_col
+                how_break = i
+        
+        
+        if how_break == 1:
+            break_apple_right(apple_array, target_row, target_col)
+            for row in apple_array:
+                print(row)
+            print("-----------------------------------")
+        elif how_break == 2:
+            break_apple_under(apple_array, target_row, target_col)
+            for row in apple_array:
+                print(row)
+            print("-----------------------------------")
+        elif how_break == 3:
+            break_apple_square(apple_array, target_row, target_col)
+            for row in apple_array:
+                print(row)
+            print("-----------------------------------")
+        else:
+            pass
+
+
+        if current_col < COL - 1:
+            current_col += 1
+        elif current_col == COL - 1 and current_row < ROW - 1:
+            current_col = 0
+            current_row += 1
+        else:
+            is_finish = copy.deepcopy(apple_array)
+            for i in range(ROW):    
+                for j in range(COL):
+                    break_apple(is_finish, i, j)
+            if not is_array_change(apple_array, is_finish):
+                print("finish")
+                break
+            else:
+                current_row, current_col = 0, 0   
+                target_row, target_col = 0, 0 
+
+
+
+    
 # 실험코드
+if __name__:
+    """
+    break_apple_square(apple_array, 0, 0)
 
-T = 5
-while T:
-    for i in range(0,9):
-        for j in range(0,16):
-            highnum_first(array_apple, i, j)
-
-    for row in array_apple:
+    for row in apple_array:
         print(row)
     print("-----------------------------------")
-    T -= 1
-
-T = 100
-while T:
-    for i in range(0,10):
-        for j in range(0,17):
-            break_right(array_apple, i, j)
-
-    for row in array_apple:
-        print(row)
+"""
+    simulate_break(apple_array)
+    cnt = 0
+    for i in range(0,ROW):
+        for j in range(0,COL):
+            if apple_array[i][j] == 0:
+                cnt += 1
+    for row in apple_array:
+            print(row)
     print("-----------------------------------")
-    T -= 1
+    print(cnt)
 
-cnt = 0
-
-for i in range(0,10):
-    for j in range(0,17):
-        if array_apple[i][j] == 0:
-            cnt += 1
-
-print(cnt)
+    """
+break_apple(apple_array, 0,0)
+for row in apple_array:
+    print(row)
+print("-----------------------------------")
+"""
