@@ -449,7 +449,7 @@ def break_apple(apple_array, current_row, current_col):
 ```
 작은 배열로 테스트를 해보기 위해서 기존의 코드를 함수로 객체지향으로 바꾸어줬다.  
 ROW와 COL을 전역변수로 할당하고 가독성을 높이기 위해 일부 변수명도 바꾸어줬다.  
-
+<br>
 ```python
 def is_array_change(first_array, second_array):
     one = copy.deepcopy(first_array)
@@ -461,6 +461,7 @@ def is_array_change(first_array, second_array):
         return True
 ```
 배열의 변화를 감지하는 반복문을 만들어주고    
+<br>
 
 ```python
 def count_score(array):
@@ -477,8 +478,8 @@ def print_array(array):
             print(row)
     print("-----------------------------------")
 ```
-디버깅을 위한 점수세기, 배열프린트 함수도 만들어줬다.  
 
+디버깅을 위한 점수세기, 배열프린트 함수도 만들어줬다.  
 <br>
 ```python
 def search_best_path(copy_array, trace_path, explored_index):
@@ -502,9 +503,8 @@ def search_best_path(copy_array, trace_path, explored_index):
                     explored_index = 1
                     search_best_path(copy_array, trace_path, explored_index)
 ```
-재귀함수를 활용해서 최적의 전략을 찾아보겠다.
-내가 이전에 갔던 경로인지 확인해야 하기 때문에 trace_path로 경로를 저장하고, explored_index를 통해 첫 시작점을 판단한다 (첫 시작일 때는 0 이후엔 1).
-
+재귀함수를 활용해서 최적의 전략을 찾아보겠다.  
+내가 이전에 갔던 경로인지 확인해야 하기 때문에 trace_path로 경로를 저장하고, explored_index를 통해 첫 시작점을 판단한다 (첫 시작일 때는 0 이후엔 1).   
 <br>
 ```python
 def all_search_best_path(apple_array):
@@ -533,8 +533,8 @@ def all_search_best_path(apple_array):
         i += 1
         j = 0
     print(max_score)
-```
-깊은 복사를 통해 독립적인 배열을 만들어주고 모든 경우의 수를 탐색한다.  
+```  
+깊은 복사를 통해 독립적인 배열을 만들어주고 모든 경우의 수를 탐색한다.   
 그리고 모든 블럭을 0으로 만들 수 있으면 i와 j를 각각 ROW와 COL로 변환시켜 반복문을 탈출한다.  
 <br>
 ```python
@@ -579,6 +579,7 @@ its break!!!!!!!!
 ```
 모두 부술 수 있었다.   
 <br>
+#### 이후 사과
 ```python
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8]
 [0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0]
@@ -594,6 +595,6 @@ its break!!!!!!!!
 ```
 그래서 기존 코드에도 적용해보았는데,  결과는 136점으로 전부 점수에 큰 변화가 없었다.  
 아마 한 좌표에서 여러 방법이 가능한 경우 경로처리가 잘 안 되어서 그런 것 같다.  
-
-
-
+<br>
+### 다섯번째 방법  
+코드 제작중 <>..
