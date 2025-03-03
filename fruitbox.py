@@ -31,6 +31,18 @@ apple_array = [
 # 사각형은 1 -> 3 -> 5-> 7 순으로 늘어남 *최대 17개 
 # 최악의 경우에 숫자 하나에 수백번 연산이 들어가짐
 
+# 1. 오른쪽 한칸 판단
+# 2. 아래 한칸 판단
+# 3. 가능한 사각형 판단
+
+# 오른쪽 두칸판단
+# 아래 두칸판단
+# 가능한 사각형 판단
+
+# 사각형은 1 -> 3 -> 5-> 7 순으로 늘어남 *최대 17개 
+# 최악의 경우에 숫자 하나에 수백번 연산이 들어가짐
+
+
 def is_array_change(first_array, second_array):
     one = copy.deepcopy(first_array)
     two = copy.deepcopy(second_array)
@@ -146,109 +158,101 @@ def break_apple(apple_array, current_row, current_col):
     # 3. 사각형 판단
     break_apple_square(apple_array, current_row, current_col)
 
-
-
-def check_break_apple(copy_array):
-    prev_copy_array = copy.deepcopy(apple_array)
-
-    while is_array_change(copy_array, prev_copy_array):
-        prev_copy_array = copy.deepcopy(copy_array)
-        for i in range(ROW):
-            for j in range(COL):
-                break_apple_right(copy_array, i, j) 
-
-                break_apple_under(copy_array, i, j)
-
-                break_apple_square(copy_array, i, j)
-
+def count_score(array):
     cnt = 0
-    for i in range(0,ROW):
-        for j in range(0,COL):
-            if copy_array[i][j] == 0:
+    for i in range(ROW):
+        for j in range(COL):
+            if array[i][j] == 0:
                 cnt += 1
-
     return cnt
 
-def is_break_apple_where(where, current_row, current_col, max_cnt):
-    copy_array = copy.deepcopy(apple_array)
-    now_cnt = None
+def print_array(array):
+    print("-----------------------------------")
+    for row in array:
+            print(row)
+    print("-----------------------------------")
 
-    match where:
-        case 1:
-            if break_apple_right(copy_array, current_row, current_col):
-                now_cnt= check_break_apple(copy_array)
-        case 2:
-            if break_apple_under(copy_array, current_row, current_col):
-                now_cnt = check_break_apple(copy_array)
-        case 3:
-            if break_apple_square(copy_array, current_row, current_col):
-                now_cnt = check_break_apple(copy_array)
-    
-    if now_cnt is None:
-        return False, max_cnt  
+def search_best_path(copy_array, trace_path, explored_index):
 
-    if now_cnt > max_cnt:
-        max_cnt = now_cnt
-        return True, max_cnt
-    
-    else:
-        return False, max_cnt
+    for i in range(ROW):
+        for j in range(COL):
+            if [i, j, 1, explored_index] not in trace_path:
+                if break_apple_right(copy_array, i, j):
+                    trace_path.append([i, j, 1, explored_index])
+                    explored_index = 1
+                    search_best_path(copy_array, trace_path, explored_index) 
+
+            if [i, j, 2, explored_index] not in trace_path:
+                if break_apple_under(copy_array, i, j):
+                    trace_path.append([i, j, 2, explored_index])
+                    explored_index = 1
+                    search_best_path(copy_array, trace_path, explored_index)
+                
+            if [i, j, 3, explored_index] not in trace_path:
+                if break_apple_square(copy_array, i, j):
+                    trace_path.append([i, j, 3, explored_index])
+                    explored_index = 1
+                    search_best_path(copy_array, trace_path, explored_index)
+                    
 
 
-def simulate_break(apple_array):
-    current_row, current_col = 0, 0   
-    target_row, target_col = 0, 0 
+def all_search_best_path(apple_array):
+    max_score = 0
+    trace_path = []
+    is_return = 0
 
-    while True:
-        max_cnt = 0
-        how_break = 0
-        for i in range(1, 4):
-            change_target, max_cnt = is_break_apple_where(i, current_row, current_col, max_cnt)
+    i, j = 0, 0
+    while i < ROW:
+        while j < COL:
+            copy_array = copy.deepcopy(apple_array)
+            explored_index = 0
 
-            if change_target:
-                target_row, target_col = current_row, current_col
-                how_break = i
-        
-        
-        if how_break == 1:
-            break_apple_right(apple_array, target_row, target_col)
-            for row in apple_array:
-                print(row)
-            print("-----------------------------------")
-        elif how_break == 2:
-            break_apple_under(apple_array, target_row, target_col)
-            for row in apple_array:
-                print(row)
-            print("-----------------------------------")
-        elif how_break == 3:
-            break_apple_square(apple_array, target_row, target_col)
-            for row in apple_array:
-                print(row)
-            print("-----------------------------------")
+            search_best_path(copy_array, trace_path, explored_index)
+            now_score = count_score(copy_array)
+
+            
+            if now_score > max_score:
+                max_score = now_score
+                
+                if now_score == ROW*COL:
+                    break_apple(apple_array, trace_path)
+                    i = ROW
+                    j = COL
+            j += 1
+        i += 1
+        j = 0
+    print(max_score)
+
+                    
+
+
+def break_apple(apple_array, trace_path):
+    final_path = []
+
+    for list in trace_path:
+        if list[-1] == 0:
+            final_path.clear()
+            final_path.append(list)
+        else:
+            final_path.append(list)
+
+    print("final: ", final_path)
+
+    for list in final_path:
+        if list[2] == 1:
+            break_apple_right(apple_array, list[0], list[1])
+            print_array(apple_array)
+        elif list[2] == 2:
+            break_apple_under(apple_array, list[0], list[1])
+            print_array(apple_array)
+        elif list[2] == 3:
+            break_apple_square(apple_array, list[0], list[1])
+            print_array(apple_array)
         else:
             pass
 
+    print("its break!!!!!!!!")
 
-        if current_col < COL - 1:
-            current_col += 1
-        elif current_col == COL - 1 and current_row < ROW - 1:
-            current_col = 0
-            current_row += 1
-        else:
-            is_finish = copy.deepcopy(apple_array)
-            for i in range(ROW):    
-                for j in range(COL):
-                    break_apple(is_finish, i, j)
-            if not is_array_change(apple_array, is_finish):
-                print("finish")
-                break
-            else:
-                current_row, current_col = 0, 0   
-                target_row, target_col = 0, 0 
-
-
-
-    
 # 실험코드
 if __name__:
     """
@@ -258,17 +262,16 @@ if __name__:
         print(row)
     print("-----------------------------------")
 """
-    simulate_break(apple_array)
+
+
+    all_search_best_path(apple_array)
     cnt = 0
-    for i in range(0,ROW):
-        for j in range(0,COL):
+    for i in range(ROW):
+        for j in range(COL):
             if apple_array[i][j] == 0:
                 cnt += 1
-    for row in apple_array:
-            print(row)
-    print("-----------------------------------")
-    print(cnt)
 
+    print(cnt)
     """
 break_apple(apple_array, 0,0)
 for row in apple_array:
