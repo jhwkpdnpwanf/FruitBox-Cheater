@@ -1,24 +1,36 @@
-import copy
 # 880 570 << 기본화면 dsd
 
 # 100 550 << 리셋버튼
 # 250 320 << 시작버튼
 
 # 41*41 << 사과 하나 공간
-ROW = 10
-COL = 17
 
+import copy
+import time
+
+ROW = 5
+COL = 5
+
+"""
 apple_array = [
-    [2, 9, 1, 2, 2, 8, 4, 1, 1, 4, 2, 3, 3, 4, 3, 8, 8],
-    [7, 7, 2, 8, 3, 4, 9, 1, 9, 3, 5, 4, 7, 2, 4, 2, 3],
-    [7, 9, 4, 2, 5, 6, 1, 2, 4, 7, 9, 5, 1, 4, 3, 7, 6],
-    [2, 8, 6, 9, 3, 1, 2, 4, 5, 6, 3, 8, 9, 5, 5, 4, 1],
-    [3, 4, 1, 3, 4, 4, 6, 7, 6, 9, 1, 7, 3, 1, 8, 5, 7],
-    [3, 9, 6, 9, 5, 7, 9, 8, 3, 2, 8, 8, 8, 1, 4, 1, 4],
-    [1, 2, 6, 7, 5, 8, 4, 6, 1, 3, 5, 1, 5, 3, 2, 3, 5],
-    [7, 5, 5, 1, 6, 3, 7, 1, 5, 5, 2, 9, 5, 5, 4, 7, 1],
-    [5, 1, 8, 5, 9, 4, 6, 2, 5, 4, 7, 8, 1, 3, 6, 7, 8],
-    [5, 1, 8, 4, 1, 1, 2, 9, 9, 3, 2, 5, 5, 5, 2, 1, 1]
+    [9, 1, 6, 1, 2],
+    [3, 1, 7, 5, 3],
+    [1, 8, 4, 5, 4]
+]
+"""
+apple_array = [
+    [1,6,2,3,5],
+    [2,1,2,3,7],
+    [2,2,8,3,5],
+    [4,1,5,3,9],
+    [1,7,4,1,3]
+]
+apple_array = [
+    [3,1,4,7,1],
+    [9,3,6,1,4],
+    [5,3,8,2,2],
+    [7,3,2,1,2],
+    [5,3,1,6,1]
 ]
 # 1. 오른쪽 한칸 판단
 # 2. 아래 한칸 판단
@@ -31,16 +43,76 @@ apple_array = [
 # 사각형은 1 -> 3 -> 5-> 7 순으로 늘어남 *최대 17개 
 # 최악의 경우에 숫자 하나에 수백번 연산이 들어가짐
 
-# 1. 오른쪽 한칸 판단
-# 2. 아래 한칸 판단
-# 3. 가능한 사각형 판단
+def Q_break_apple_right(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
 
-# 오른쪽 두칸판단
-# 아래 두칸판단
-# 가능한 사각형 판단
+    rc = COL - current_col - 1
 
-# 사각형은 1 -> 3 -> 5-> 7 순으로 늘어남 *최대 17개 
-# 최악의 경우에 숫자 하나에 수백번 연산이 들어가짐
+    for i in range(rc):
+        plus_col = current_col + 1 + i
+        hap_apple += apple_array[current_row][plus_col] 
+
+        if hap_apple == 10:
+            return 1
+
+        if hap_apple > 10:
+            return 0
+    return 0
+
+def Q_break_under(apple_array, current_row, current_col):
+    now_apple = apple_array[current_row][current_col]
+    hap_apple = now_apple
+
+    rr = ROW - current_row - 1
+    
+    for i in range(rr):
+        plus_row = current_row + 1 + i
+        hap_apple += apple_array[plus_row][current_col]
+
+        if hap_apple == 10:
+            for i in range(current_row, plus_row + 1):
+                pass
+            return 1
+        if hap_apple > 10:
+            return 0
+    return 0
+        
+def Q_break_apple_square(apple_array, current_row, current_col):
+    hap_apple = 0
+
+    target_row = current_row + 1
+    target_col = current_col + 1
+
+    while True:
+        hap_apple = 0
+        if target_row > ROW:
+            return 0
+
+        for i in range(current_row, target_row):
+            for j in range(current_col, target_col):
+                hap_apple += apple_array[i][j]
+
+        if hap_apple == 10:
+            for i in range(current_row, target_row):
+                for j in range(current_col, target_col):
+                    pass
+            return 1
+        
+        if hap_apple > 10:
+            return 0
+
+        target_col += 1
+        if target_col > COL:
+            target_row += 1
+            target_col = current_col + 1
+
+
+
+
+
+
+
 
 
 def is_array_change(first_array, second_array):
@@ -55,7 +127,7 @@ def is_array_change(first_array, second_array):
 def highnum_first(apple_array, current_row, current_col):
     now_apple = apple_array[current_row][current_col]
     hap_apple = now_apple
-
+    
     plus_col = current_col + 1
     hap_apple += apple_array[current_row][plus_col] 
 
@@ -172,58 +244,74 @@ def print_array(array):
             print(row)
     print("-----------------------------------")
 
-def search_best_path(copy_array, trace_path, explored_index):
+def search_best_path(copy_array, trace_path, index, judge):
+    i , j = 0, 0
+    while i < ROW - 1:
+        while j < COL - 1:
+            cnt = 0
+            cnt = Q_break_apple_right(copy_array, i, j)
+            cnt += Q_break_under(copy_array, i, j)
+            cnt += Q_break_apple_square(copy_array, i, j)
+            
+            judge = cnt
 
-    for i in range(ROW):
-        for j in range(COL):
-            if [i, j, 1, explored_index] not in trace_path:
+            if i == 0 and j== 0:
+                pass
+            """ 
+            print(n, "에서",index, "인데",i, j,"에서",cnt, "번 겹친다")
+            if judge > 1:
+                pass
+                """
+
+            if [i, j, 1, index] not in trace_path:
                 if break_apple_right(copy_array, i, j):
-                    trace_path.append([i, j, 1, explored_index])
-                    explored_index = 1
-                    search_best_path(copy_array, trace_path, explored_index) 
-
-            if [i, j, 2, explored_index] not in trace_path:
-                if break_apple_under(copy_array, i, j):
-                    trace_path.append([i, j, 2, explored_index])
-                    explored_index = 1
-                    search_best_path(copy_array, trace_path, explored_index)
-                
-            if [i, j, 3, explored_index] not in trace_path:
-                if break_apple_square(copy_array, i, j):
-                    trace_path.append([i, j, 3, explored_index])
-                    explored_index = 1
-                    search_best_path(copy_array, trace_path, explored_index)
+                    trace_path.append([i, j, 1, index])
+                    index += 1
+                    search_best_path(copy_array, trace_path, index, judge) 
                     
+            if [i, j, 2, index] not in trace_path:
+                if break_apple_under(copy_array, i, j):
+                    trace_path.append([i, j, 2, index])
+                    index += 1
+                    search_best_path(copy_array, trace_path, index, judge)
 
+            if [i, j, 3, index] not in trace_path:
+                if break_apple_square(copy_array, i, j):
+                    trace_path.append([i, j, 3, index])
+                    index += 1
+                    search_best_path(copy_array, trace_path, index, judge)
+            
+            j += 1
+        i += 1
+        j = 0
 
 def all_search_best_path(apple_array):
     max_score = 0
     trace_path = []
-    is_return = 0
+    
+    n = 1
+    for i in range(10):
+        copy_array = copy.deepcopy(apple_array)
+        index, judge = 0, 0
+        search_best_path(copy_array, trace_path, index, judge)
 
-    i, j = 0, 0
-    while i < ROW:
-        while j < COL:
-            copy_array = copy.deepcopy(apple_array)
-            explored_index = 0
+        now_score = count_score(copy_array)
 
-            search_best_path(copy_array, trace_path, explored_index)
-            now_score = count_score(copy_array)
-
+        n += 1
+        print_array(copy_array)
+        print(trace_path)
+        if now_score > max_score:
+            max_score = now_score
             
-            if now_score > max_score:
-                max_score = now_score
-                
-                if now_score == ROW*COL:
-                    break_apple(apple_array, trace_path)
-                    i = ROW
-                    j = COL
-            j += 1
-        i += 1
-        j = 0
-    print(max_score)
+            if now_score == ROW*COL:
+                break_apple(apple_array, trace_path)
+                break
+        
+        if judge > 1:
+            pass
 
-                    
+
+    print(max_score)
 
 
 def break_apple(apple_array, trace_path):
@@ -256,13 +344,11 @@ def break_apple(apple_array, trace_path):
 # 실험코드
 if __name__:
     """
-    break_apple_square(apple_array, 0, 0)
+    for i in range(ROW - 1):
+        for j in range(COL - 1 ):
 
-    for row in apple_array:
-        print(row)
-    print("-----------------------------------")
-"""
-
+            highnum_first(apple_array, i, j)
+    """
 
     all_search_best_path(apple_array)
     cnt = 0
@@ -272,6 +358,7 @@ if __name__:
                 cnt += 1
 
     print(cnt)
+
     """
 break_apple(apple_array, 0,0)
 for row in apple_array:
