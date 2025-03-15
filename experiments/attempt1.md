@@ -93,3 +93,98 @@ def break_right(array_apple, current_row, current_col):
 170점이 가능한 사과 숫자의 소스를 정리해보았다.  
 6,7,8,9가 각각 1,2,3,4보다 적게 나오는 상황에만 코드를 실행하도록 만들어야겠다.   
 <br>
+```python
+def highnum_first(array_apple, current_row, current_col):
+    rows = 10
+    cols = 17
+
+    apple_now = array_apple[current_row][current_col]
+
+    apple_hap = apple_now
+
+    plus_col = current_col + 1
+    apple_hap += array_apple[current_row][plus_col] 
+
+    if apple_now in [1,2,8,9]:
+        if apple_hap == 10:
+            array_apple[current_row][current_col:plus_col + 1] = [0] * (plus_col - current_col + 1)
+            return
+
+    apple_hap = apple_now
+    
+    plus_row = current_row + 1
+    apple_hap += array_apple[plus_row][current_col]
+    
+    if apple_now in [1,2,8,9]:
+        if apple_hap == 10:
+            for i in range(current_row, plus_row + 1):
+                array_apple[i][current_col] = 0
+            return
+``` 
+높은 숫자인 9와 8을 먼저 없애보았다.  
+<br>  
+#### 이후 사과
+```python
+[0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8]
+[0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 9, 0, 0, 0, 0, 0, 0, 4, 0, 9, 5, 0, 0, 0, 0, 0]
+[0, 0, 0, 9, 0, 0, 0, 0, 5, 6, 0, 8, 0, 0, 5, 0, 0]
+[0, 4, 1, 3, 4, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 7]
+[0, 9, 6, 9, 0, 7, 9, 8, 0, 0, 0, 8, 8, 1, 0, 0, 0]
+[0, 2, 6, 7, 0, 8, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 1, 8, 5, 0, 0, 0, 2, 0, 4, 7, 8, 0, 0, 0, 7, 8]
+[0, 1, 8, 4, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+# 120점
+```
+숫자 9는 1 외에는 10을 만들 수 있는 숫자가 없기 때문에 먼저 없애면 점수가 크게 높아질 줄 알았으나    
+120점으로 유의미한 변화는 없었다.  
+<br>
+```python
+    apple_hap = 0
+    target_row = current_row + 1
+    target_col = current_col + 1
+
+    while True:
+        if target_col >= 17:
+            break
+        if target_row >= 10:
+            break
+
+        for i in range(current_row, target_row):
+            for j in range(current_col, target_col):
+                apple_hap += array_apple[i][j]
+
+        if apple_hap == 10:
+            for i in range(current_row, target_row):
+                for j in range(current_col, target_col):
+                    array_apple[i][j] = 0
+            return
+        
+        if apple_hap > 10:
+            break
+
+        target_col += 1
+        if target_col >= 16:
+            target_row += 1
+            target_col = current_col + 1
+``` 
+더 많은 사과를 없애기 위해서 멀리 대각선 방향으로 떨어진 사과도 처리해야겠다.
+2*2 이상의 사각형도 처리해주는 코드를 짜보았다.  
+<br>  
+#### 이후 사과
+```python
+[0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8]
+[0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 9, 0, 2, 0, 0, 0, 2, 4, 0, 9, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 9, 0, 0, 0, 0, 5, 6, 0, 8, 0, 0, 0, 0, 0]
+[0, 4, 1, 0, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0, 0, 7]
+[0, 0, 6, 9, 0, 7, 0, 8, 0, 0, 0, 8, 8, 0, 0, 0, 0]
+[1, 0, 0, 7, 0, 8, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0]
+[7, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 0, 0, 0, 7, 8]
+[0, 0, 8, 4, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+# 132점
+```
+멀리 있는 사각형을 처리할 수 있으니, 132점으로 전에 비해 훨씬 높은 점수를 받을 수 있었다.  
+이제 사과를 전부 처리하기 위한 다른 알고리즘을 생각해봐야겠다.
