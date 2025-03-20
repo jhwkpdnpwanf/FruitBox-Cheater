@@ -57,14 +57,21 @@ def is_break_apple_under(array, row, col): # currnet row, current col
                 return []
     return []
 
-def is_break_apple_square(array, row, col): # currnet row, current col
+def is_break_apple_square(array, row, col, direction = 'down'): # currnet row, current col
     start_point = [row, col]
     now = array[row][col]
 
-    range_row = next((r for r, _ in enumerate(array[row + 1:], start=row + 1) if array[r][col] != 0), ROW)
-    range_col = next((c for c, value in enumerate(array[row][col + 1:], start=col + 1) if value != 0), COL)
+    if direction == 'up':
+        range_row = next((r for r in range(row - 1, -1, -1) if array[r][col] != 0), -1)
+        range_col = next((c for c, value in enumerate(array[row][col + 1:], start=col + 1) if value != 0), COL)
+        step = -1
 
-    for i in range(row + 1, range_row):
+    else: # direction == 'down'
+        range_row = next((r for r, _ in enumerate(array[row + 1:], start=row + 1) if array[r][col] != 0), ROW)
+        range_col = next((c for c, value in enumerate(array[row][col + 1:], start=col + 1) if value != 0), COL)
+        step = 1
+
+    for i in range(row + step, range_row, step):
         for j in range(col + 1, range_col):
             last_value = array[i][j]
 
@@ -114,6 +121,8 @@ def expected_destroyed_apple(array, range_coords):
                 cnt += 1
             if is_break_apple_square(array,i,j):
                 cnt += 1
+            if is_break_apple_square(array,i,j, 'up'):
+                cnt += 1
     recover_apple(array, range_coords)
     return cnt
 
@@ -126,7 +135,8 @@ def get_pruning_value_map(array):
             range_coords = {
                 'right': is_break_apple_right(array, i, j),
                 'under': is_break_apple_under(array, i, j),
-                'square': is_break_apple_square(array, i, j)
+                'square': is_break_apple_square(array, i, j),
+                'square up' : is_break_apple_square(array, i, j, 'up')
             }
 
             count_range_coords = {
