@@ -246,7 +246,7 @@ result path:  [(0, 0, (0, 0, 0, 0, 3, 0, 0, 0, 5, 2)), (0, 1, ([0, 0, 0, 0, 0, 0
 ```
 이렇게 해결을 할 수 있었다.  
 
-이제 원래 함수에 넣어보면
+이제 원래 배열에 넣어보면
 ```python
 146
 143
@@ -260,4 +260,55 @@ result path:  [(0, 0, (0, 0, 0, 0, 3, 0, 0, 0, 5, 2)), (0, 1, ([0, 0, 0, 0, 0, 0
 .
 ```
 으로 시간이 너무 오래 걸리고 바로 해결을 하지 못하게된다.  
-7-8점 가량 높아지긴 했으나 여전히 만점까진 25점 정도 남았다.  
+2-7점 가량 높아지긴 했으나 여전히 만점까진 25점 정도 남았다.  
+
+수정한 코드를 유심히 보다보니 한가지 오류를 발견했다.  
+바로 정사각형 로직을 단순화 시키려다보니 왼쪽 하단 오른쪽 상단을 부숴야하는 상황을 부수지 못하였다.  
+<br>
+```python
+def is_break_apple_square(array, row, col, direction = 'down'): # currnet row, current col
+    start_point = [row, col]
+    now = array[row][col]
+
+    if direction == 'up':
+        range_row = next((r for r in range(row - 1, -1, -1) if array[r][col] != 0), -1)
+        range_col = next((c for c, value in enumerate(array[row][col + 1:], start=col + 1) if value != 0), COL)
+        step = -1
+
+    else: # direction == 'down'
+        range_row = next((r for r, _ in enumerate(array[row + 1:], start=row + 1) if array[r][col] != 0), ROW)
+        range_col = next((c for c, value in enumerate(array[row][col + 1:], start=col + 1) if value != 0), COL)
+        step = 1
+
+    for i in range(row + step, range_row, step):
+        for j in range(col + 1, range_col):
+            last_value = array[i][j]
+
+            if last_value == 0:
+                continue
+            else:
+                if now + last_value == 10:
+                    last_point = [i, j]
+                    return [start_point, last_point, now, last_value]  
+                else:
+                    break
+    return []
+```
+이렇게 direction을 추가해서 up인 경우도 따로 적어줬다.  
+expected_destroyed_apple 함수와 get_pruning_value_map 함수에도 up 방향을 전부 추가해준 뒤,  
+
+원래 배열에 넣어보면   
+```python
+152
+152
+152
+149
+152
+152
+149
+.
+.
+.
+```
+으로 아까보다 최대 9점이나 올랐다!  
+이제 170점까지 18점만 더 해결하면 된다.  
