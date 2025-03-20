@@ -1,8 +1,10 @@
 import copy
 import time
-ROW = 5
-COL = 5
+ROW = 10
+COL = 17
 
+depth = 0
+max_depth = 5
 
 apple_array = [
     [1,6,4,3,5],
@@ -18,7 +20,18 @@ apple_array = [
     [7,2,8,8,2],
     [7,2,2,3,3]
 ]
-
+apple_array = [ 
+    [2, 0, 0, 2, 0, 0, 4, 1, 0, 0, 2, 3, 0, 4, 3, 0, 8],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 0, 2, 4, 0, 3],
+    [0, 9, 0, 2, 5, 0, 1, 2, 4, 0, 9, 5, 0, 0, 0, 0, 0],
+    [0, 0, 0, 9, 3, 1, 2, 4, 5, 0, 3, 8, 0, 0, 0, 4, 1],
+    [0, 4, 1, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1, 8, 5, 7],
+    [0, 9, 6, 0, 0, 7, 9, 8, 3, 0, 0, 8, 8, 1, 4, 1, 4],
+    [1, 2, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0, 5],
+    [7, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 0, 0, 0, 0, 0, 1],
+    [0, 1, 8, 5, 0, 0, 0, 0, 0, 4, 7, 8, 1, 0, 0, 0, 8],
+    [0, 1, 8, 4, 0, 1, 2, 0, 0, 3, 2, 0, 0, 5, 2, 1, 1]
+]
 
 
 def break_apple_right(array, row, col): # currnet row, current col
@@ -111,7 +124,7 @@ def can_add_path(step):
         return True
 
 def search_best_path(array, trace_path):
-
+    
     if count_score(array) == ROW*COL:
         print("finish")
         return True
@@ -120,6 +133,7 @@ def search_best_path(array, trace_path):
         for j in range(COL):
             step_right = break_apple_right(array, i, j)
             if step_right:
+                print(count_score(array))
                 trace_path.append(step_right)
                 if search_best_path(array, trace_path):
                     return True
@@ -133,6 +147,7 @@ def search_best_path(array, trace_path):
 
             step_under = break_apple_under(array, i, j)
             if step_under:
+                print(count_score(array))
                 trace_path.append(step_under)
                 if search_best_path(array, trace_path):
                     return True
@@ -145,6 +160,7 @@ def search_best_path(array, trace_path):
 
             step_square = break_apple_square(array, i, j)
             if step_square:
+                print(count_score(array))
                 trace_path.append(step_square)
                 if search_best_path(array, trace_path):
                     return True
@@ -162,7 +178,7 @@ def search_best_path(array, trace_path):
         return False
     # recover array (backtracking!!!)
     # The function was integrated to reduce overhead since it is frequently called during the backtracking process.
-
+    
 
 if __name__:
     trace_path = []
