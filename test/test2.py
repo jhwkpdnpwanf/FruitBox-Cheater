@@ -33,6 +33,8 @@ apple_array = [
     [2, 0, 0, 0, 3, 3, 4, 0, 0, 1]
 ]
 
+# 41*41 << 사과 하나 공간
+
 
 def break_apple_right(array, row, col): # currnet row, current col
 

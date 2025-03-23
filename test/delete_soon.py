@@ -1,26 +1,5 @@
 import copy
 import time
-# 880 570 << 기본화면 dsd
-
-# 100 550 << 리셋버튼
-# 250 320 << 시작버튼
-
-# 41*41 << 사과 하나 공간
-ROW = 10
-COL = 10
-
-apple_array = [
-    [4, 6, 3, 7, 5, 5, 2, 8, 2, 0],
-    [5, 5, 4, 6, 3, 3, 4, 1, 9, 1],
-    [3, 7, 3, 3, 4, 6, 2, 8, 5, 5],
-    [2, 8, 6, 4, 4, 6, 2, 5, 5, 2],
-    [3, 3, 4, 0, 3, 5, 5, 5, 0, 8],
-    [5, 5, 2, 8, 4, 5, 3, 3, 4, 1],
-    [9, 1, 3, 7, 3, 3, 4, 6, 2, 8],
-    [5, 5, 2, 8, 0, 4, 4, 6, 2, 5],
-    [5, 2, 3, 3, 4, 6, 3, 7, 5, 5],
-    [2, 8, 4, 6, 3, 3, 4, 1, 9, 1],
-]
 
 ROW = 10
 COL = 17
@@ -38,72 +17,12 @@ apple_array = [
     [5, 1, 8, 4, 1, 1, 2, 9, 9, 3, 2, 5, 5, 5, 2, 1, 1]
 ]
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import time
-
-FIG = None
-AX = None
-IM = None
-CACHED_MASK = None
-WAIT_FOR_INPUT = True  # 첫 단계에서 대기하도록 설정
 
 def print_array(array, delay=0.1):
-    global FIG, AX, IM, CACHED_MASK, WAIT_FOR_INPUT
-
-    arr_np = np.array(array)
-    mask = (arr_np != 0).astype(int)
-
-    if FIG is None:
-        plt.ion()  
-        cmap = mcolors.ListedColormap(['white', 'red'])
-        bounds = [-0.5, 0.5, 1.5]
-        norm = mcolors.BoundaryNorm(bounds, cmap.N)
-
-        FIG, AX = plt.subplots()
-        FIG.suptitle("Single-Window Visualization")
-
-        IM = AX.imshow(mask, cmap=cmap, norm=norm)
-
-        cbar = plt.colorbar(IM, ticks=[0, 1])
-        cbar.ax.set_yticklabels(['0', 'Non-zero'])
-
-        AX.set_title("Initial State")
-        plt.draw()
-        plt.pause(0.01)
-        CACHED_MASK = mask.copy()
-
-        # 첫 번째 단계에서 `input()`으로 대기
-        if WAIT_FOR_INPUT:
-            input("▶ 준비가 되면 Enter 키를 누르세요... ")
-            WAIT_FOR_INPUT = False  # 이후 단계에서는 바로 진행
-
-    else:
-        if np.array_equal(mask, CACHED_MASK):
-            return
-        IM.set_data(mask)
-        AX.set_title("Array Updated")
-        plt.draw()
-        plt.pause(0.01)
-        time.sleep(delay)
-        CACHED_MASK = mask.copy()
-
-    for txt in AX.texts:
-        txt.remove()
-
-    rows, cols = arr_np.shape
-    for i in range(rows):
-        for j in range(cols):
-            val = arr_np[i, j]
-            if val != 0:
-                AX.text(j, i, str(val), color='white', ha='center', va='center', fontsize=10)
-
-    plt.draw()
-    plt.pause(0.01)
-    time.sleep(delay)
-
-
+    print("-----------------------------------")
+    for row in array:
+            print(row)
+    print("-----------------------------------")
 
 def is_break_apple_right(array, row, col): # currnet row, current col
     start_point = [row, col]
@@ -187,22 +106,37 @@ def count_score(array):
                 cnt += 1
     return cnt
 
-def expected_destroyed_apple(array, range_coords):
-    break_apple(array, range_coords)
-    cnt = 0
-    for i in range(ROW):
-        for j in range(COL):
-            
-            if is_break_apple_right(array,i,j):
-                cnt += 1
-            if is_break_apple_under(array,i,j):
-                cnt += 1
-            if is_break_apple_square(array,i,j):
-                cnt += 1
-            if is_break_apple_square(array,i,j, 'up'):
-                cnt += 1
-    recover_apple(array, range_coords)
-    return cnt
+def expected_destroyed_apple(array, direction, coords, max_depth = 5, exp_value = 0, temp_break_list = None):
+    if temp_break_list is None:
+        temp_break_list = []
+    if max_depth < 0:
+        return exp_value
+    
+    break_apple(array, coords)
+    temp_break_list.append(coords) # to recover
+
+    I = coords[1][0]
+    J = coords[1][1]
+    if direction == "square up":
+        I = coords[0][0]
+        J = coords[1][1]
+
+    for i in range(I):
+        for j in range(J):
+                right = is_break_apple_right(array, i, j)
+                if right:
+                    temp_break_list.append(right)
+                    max_depth -= 1
+                    exp_value += 1
+                    expected_destroyed_apple(array, "right", right, max_depth, exp_value)
+                    recover_apple(array, temp_break_list.pop())
+                    
+        
+
+                under = is_break_apple_under(array, i, j)
+                square = is_break_apple_square(array, i, j)
+                square2 = is_break_apple_square(array, i, j, 'up')
+
 
 def get_pruning_value_map(array):
     value_map = {} 
@@ -216,45 +150,56 @@ def get_pruning_value_map(array):
                 'square': is_break_apple_square(array, i, j),
                 'square up' : is_break_apple_square(array, i, j, 'up')
             }
-
+            """for k, v in range_coords.items():
+                if v:
+                    print(range_coords)"""
             count_range_coords = {
-                key:expected_destroyed_apple(array, coords)
-                for key, coords in range_coords.items() if coords
+                direction:expected_destroyed_apple(array, direction, coords)
+                for direction, coords in range_coords.items() if coords
             }
+
 
             if count_range_coords:
                 max_value = max(count_range_coords, key = count_range_coords.get)
                 value_map.update({(idx, max_value, count_range_coords[max_value]): range_coords[max_value]})
                 idx += 1 # Prevents key duplication / It's just an index
-    
+                print(value_map)
+            
     return value_map
 
-def pruning(array, trace_path):
+def pruning(array):
     value_map = get_pruning_value_map(array)
 
     if value_map:
         target_apple = max(x[2] for x in value_map)
         max_items = {key: value for key, value in value_map.items() if key[2] == target_apple}
 
+        print(next(iter(max_items.values())))
+
         if len(max_items) == 0:
             return
         else:
             first_value = next(iter(max_items.values()))
-            trace_path.append(first_value)
             break_apple(array, first_value)
+            s = sum(sum(row) for row in array)
+            print(s)
             print_array(array)
-            pruning(array, trace_path)
+            pruning(array)
             
     else:
         return
 
-
-
-
+    """
+        if len(max_items) == 1:
+            break_apple(array, *max_items.values())
+        else:
+            for value in max_items.values():
+                print(expected_destroyed_apple(array, value))
+                """
+    
 
 if __name__:
     trace_path = []
-    pruning(apple_array, trace_path)
+    pruning(apple_array)
     print_array(apple_array)
     print(count_score(apple_array))
-    print(trace_path)
